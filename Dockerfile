@@ -1,4 +1,4 @@
-# Dockerfile (Pi 5 / arm64) - installs system deps and tflite_runtime wheel first
+# Dockerfile (Pi 5 / arm64) - installs system deps and tflite_runtime wheel via pip URL
 FROM python:3.11-slim-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -19,12 +19,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # Install a prebuilt tflite_runtime wheel for CPython 3.11 / linux_aarch64
-RUN curl -fsSL -o /tmp/tflite_runtime.whl \
-    "https://github.com/PINTO0309/TensorflowLite-bin/releases/download/v2.16.1/tflite_runtime-2.16.1-cp311-none-linux_aarch64.whl" \
-  && python -m pip install --no-cache-dir /tmp/tflite_runtime.whl \
-  && rm -f /tmp/tflite_runtime.whl
+# Use pip to directly install from the release URL so redirects are handled correctly.
+RUN python -m pip install --no-cache-dir \
+    "https://github.com/PINTO0309/TensorflowLite-bin/releases/download/v2.16.1/tflite_runtime-2.16.1-cp311-none-linux_aarch64.whl"
 
-# Copy requirements (ensure requirements.txt does NOT include tflite-runtime)
+# Copy requirements (important: requirements.txt should NOT include tflite-runtime)
 COPY requirements.txt .
 
 RUN python -m pip install --no-cache-dir -r requirements.txt
