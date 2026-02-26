@@ -1,3 +1,4 @@
 numpy
 requests
+# tflite_runtime is installed separately via Dockerfile (prebuilt wheel for arm64)
 # tflite-runtime==2.16.1
