@@ -25,6 +25,8 @@ We stream MJPEG from the camera using libcamera + ffmpeg.
 Run this on the Pi host (not in Docker):
 
 ```bash
+chmod +x scripts/start_camera_stream.sh
+
 ./scripts/start_camera_stream.sh
 ```
 
