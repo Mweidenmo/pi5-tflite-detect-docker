@@ -63,17 +63,40 @@ def main():
         raise FileNotFoundError(f"Model not found: {MODEL_PATH}")
 
     it, in_details, out_details = load_interpreter(MODEL_PATH)
-    h, w = int(in_details[0]["shape"][1]), int(in_details[0]["shape"][2])
+
+    # Input info
+    input_info = in_details[0]
+    input_index = input_info["index"]
+    h, w = int(input_info["shape"][1]), int(input_info["shape"][2])
+    input_dtype = input_info["dtype"]
+    input_quant = input_info.get("quantization", (0.0, 0))  # (scale, zero_point)
+
+    print("Model input info:", input_info)
 
     fps_t0 = time.time()
     frames = 0
 
     for frame in mjpeg_frames(MJPEG_URL):
+        # Convert BGR->RGB and resize
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        resized = cv2.resize(rgb, (w, h))
-        input_data = np.expand_dims(resized.astype(np.float32) / 255.0, axis=0)
+        resized = cv2.resize(rgb, (w, h))  # HxWx3, dtype=uint8 (0..255)
 
-        it.set_tensor(in_details[0]["index"], input_data)
+        # Prepare input depending on model dtype
+        if input_dtype == np.uint8:
+            scale, zero_point = input_quant
+            if scale and zero_point:
+                # quantized model with params: quantize from float [0,1]
+                f = resized.astype(np.float32) / 255.0  # in [0,1]
+                q = np.round(f / scale + zero_point).astype(np.uint8)
+                input_data = np.expand_dims(q, axis=0)
+            else:
+                input_data = np.expand_dims(resized.astype(np.uint8), axis=0)
+        else:
+            # float model - normalize to [0,1]; adjust if your model expects [-1,1]
+            input_data = np.expand_dims(resized.astype(np.float32) / 255.0, axis=0)
+
+        # Set tensor and run inference
+        it.set_tensor(input_index, input_data)
         it.invoke()
 
         dets = decode_common_detection(it, out_details, SCORE_THRESHOLD)
