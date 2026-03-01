@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR $APP_DIR
 
-# Install system packages required for OpenCV runtime and building/wheels
+# install system deps including python3-opencv so cv2 is available
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential ca-certificates curl ffmpeg python3-opencv \
     libatlas-base-dev libopenblas-dev liblapack-dev libgomp1 \
