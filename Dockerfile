@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR $APP_DIR
 
-# install system deps including python3-opencv so cv2 is available
+# Install system packages required for OpenCV runtime and building/wheels
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential ca-certificates curl ffmpeg python3-opencv \
     libatlas-base-dev libopenblas-dev liblapack-dev libgomp1 \
@@ -19,7 +19,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel
 
 # Install a prebuilt tflite_runtime wheel for CPython 3.11 / linux_aarch64
-# Use pip to directly install from the release URL so redirects are handled correctly.
 RUN python -m pip install --no-cache-dir \
     "https://github.com/PINTO0309/TensorflowLite-bin/releases/download/v2.16.1/tflite_runtime-2.16.1-cp311-none-linux_aarch64.whl"
 
