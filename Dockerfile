@@ -1,5 +1,6 @@
 # Dockerfile (Pi 5 / arm64) - installs system deps and tflite_runtime wheel via pip URL
 FROM python:3.11-slim-bookworm
+ARG PYTHONPATH
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
