@@ -15,6 +15,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 libsm6 libxrender1 libxext6 pkg-config \
   && rm -rf /var/lib/apt/lists/*
 
+# Make sure Python will look in the Debian dist-packages where python3-opencv is installed
+ENV PYTHONPATH="/usr/lib/python3/dist-packages:${PYTHONPATH:-}"
+
 # Ensure pip is new
 RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel
 
@@ -22,7 +25,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel
 RUN python -m pip install --no-cache-dir \
     "https://github.com/PINTO0309/TensorflowLite-bin/releases/download/v2.16.1/tflite_runtime-2.16.1-cp311-none-linux_aarch64.whl"
 
-# Copy requirements (important: requirements.txt should NOT include tflite-runtime)
+# Copy requirements (important: requirements.txt should NOT include tflite-runtime or opencv-python)
 COPY requirements.txt .
 
 RUN python -m pip install --no-cache-dir -r requirements.txt
